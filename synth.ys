@@ -1,0 +1,20 @@
+# scripts/synth.ys
+
+# 1) Read the tech library as blackbox cells
+read_liberty -lib lib/Nangate45.lib
+
+# 2) Read your RTL
+read_verilog aes_key_expand_128.v aes_sbox.v aes_rcon.v
+
+# 3) Generic RTL synthesis
+synth -top aes_key_expand_128
+
+# 4) Map flops and logic to the cell library
+dfflibmap -liberty lib/Nangate45.lib
+abc -liberty lib/Nangate45.lib -D 2000 -showtmp
+
+# 5) Report area & cell breakdown using the .lib data
+stat -liberty lib/Nangate45.lib
+
+# 6) Write out the synthesized netlist for STA
+write_verilog -noattr syn/aes_key_expand_128.v
